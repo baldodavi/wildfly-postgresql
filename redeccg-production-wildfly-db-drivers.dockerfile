@@ -1,23 +1,22 @@
-FROM jboss/wildfly:18.0.0.Final
-MAINTAINER Antonin Stoklasek
+FROM jboss/wildfly:18.0.1.Final
 
 ENV WILDFLY_HOME /opt/jboss/wildfly
 ENV DEPLOY_DIR ${WILDFLY_HOME}/standalone/deployments/
 
 # setup timezone
-ENV TZ=Europe/Prague
+ENV TZ=Europe/Rome
 USER root
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 USER jboss
 
-ENV DATASOURCE_NAME ApplicationDS
-ENV DATASOURCE_JNDI java:/ApplicationDS
+ENV DATASOURCE_NAME RedEvoDataSource
+ENV DATASOURCE_JNDI java:/RedEvoDataSource
 
-ENV DB_HOST database
+ENV DB_HOST rede-db-stolon-rede-proxy
 ENV DB_PORT 5432
-ENV DB_USER user
-ENV DB_PASS password
-ENV DB_NAME dbname
+ENV DB_USER postgres
+ENV DB_PASS yazw4Wb4FE
+ENV DB_NAME postgres
 
 # create temporary deployment dir, because wars can deploy after the datasource is created
 RUN mkdir /tmp/deploments
@@ -33,6 +32,6 @@ RUN chown jboss:jboss $WILDFLY_HOME/bin/startWithPostgres.sh
 RUN chmod 755 $WILDFLY_HOME/bin/startWithPostgres.sh
 USER jboss
 
-COPY postgresql-42.2.8.jar /tmp
+COPY postgresql-42.2.12.jar /tmp
 
 ENTRYPOINT $WILDFLY_HOME/bin/startWithPostgres.sh
