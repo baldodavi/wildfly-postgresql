@@ -1,0 +1,1 @@
+docker build -f redeccg-production-wildfly-db-drivers.dockerfile -t redeccg-production-wildfly-db-drivers:0.9.9 .
