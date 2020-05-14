@@ -55,7 +55,7 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
   echo ----- Shutdown && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown && 
+  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
 # Add the datasource
 
