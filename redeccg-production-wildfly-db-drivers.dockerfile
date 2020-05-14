@@ -35,9 +35,12 @@ USER jboss
 COPY postgresql-42.2.12.jar /tmp
 
 RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
+  echo ---> Waiting for server && \
   sleep 10 && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" &&\
-  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name='postgres',driver-module-name='org.postgres',driver-class-name=org.postgresql.Driver)" && \
+  echo ---> Adding Module org.postgres && \
+  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" && \
+  echo ---> Subsystem && \
+  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name='postgres',driver-module-name='org.postgres',driver-class-name=org.postgresql.Driver)" && \
   #$WILDFLY_HOME/bin/jboss-cli.sh --connect \
   #--command="data-source add \
   #--jndi-name=$DATASOURCE_JNDI \
