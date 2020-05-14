@@ -40,7 +40,7 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   echo ----- Adding Module org.postgres && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" && \
   echo ----- Subsystem && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name='postgres',driver-module-name='org.postgres',driver-class-name=org.postgresql.Driver)" && \
+  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name=\"postgres\",driver-module-name=\"org.postgres\",driver-class-name=org.postgresql.Driver)" && \
   #$WILDFLY_HOME/bin/jboss-cli.sh --connect \
   #--command="data-source add \
   #--jndi-name=$DATASOURCE_JNDI \
@@ -54,6 +54,7 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   #--background-validation-millis=6000 \
   #--flush-strategy=IdleConnections \
   #--min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
+  echo ----- Deleting && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown && \
   rm -rf $WILDFLY_HOME/standalone/configuration/standalone_xml_history/ $WILDFLY_HOME/standalone/log/* && \
   rm -rf /tmp/postgresql-*.jar
