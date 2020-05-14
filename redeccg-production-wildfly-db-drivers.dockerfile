@@ -37,20 +37,20 @@ COPY postgresql-42.2.12.jar /tmp
 RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   sleep 10 && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" &&\
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name='postgres',driver-module-name='org.postgres',driver-class-name=org.postgresql.Driver)" && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect \
-  --command="data-source add \
-  --jndi-name=$DATASOURCE_JNDI \
-  --name=$DATASOURCE_NAME \
-  --connection-url=jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME \
-  --driver-name=postgres \
-  --user-name=$DB_USER \
-  --password=$DB_PASS \
-  --check-valid-connection-sql='SELECT 1' \
-  --background-validation=true \
-  --background-validation-millis=6000 \
-  --flush-strategy=IdleConnections \
-  --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
+  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name='postgres',driver-module-name='org.postgres',driver-class-name=org.postgresql.Driver)" && \
+  #$WILDFLY_HOME/bin/jboss-cli.sh --connect \
+  #--command="data-source add \
+  #--jndi-name=$DATASOURCE_JNDI \
+  #--name=$DATASOURCE_NAME \
+  #--connection-url=jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME \
+  #--driver-name=postgres \
+  #--user-name=$DB_USER \
+  #--password=$DB_PASS \
+  #--check-valid-connection-sql='SELECT 1' \
+  #--background-validation=true \
+  #--background-validation-millis=6000 \
+  #--flush-strategy=IdleConnections \
+  #--min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown && \
   rm -rf $WILDFLY_HOME/standalone/configuration/standalone_xml_history/ $WILDFLY_HOME/standalone/log/* && \
   rm -rf /tmp/postgresql-*.jar
