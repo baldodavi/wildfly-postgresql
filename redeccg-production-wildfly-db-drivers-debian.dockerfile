@@ -55,6 +55,6 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   echo ----- Shutdown && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
-RUN chown -R root:root /opt/jboss
+RUN chmod 777 /opt/jboss
 
 CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]
