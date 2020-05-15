@@ -19,6 +19,7 @@ COPY postgresql-42.2.12.jar /tmp
 RUN mkdir $WILDFLY_HOME/standalone/log && \
   touch $WILDFLY_HOME/standalone/log/server.log && \
 chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
+  chmod 777 /opt/jboss/wildfly/standalone/data/content && \
   /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
