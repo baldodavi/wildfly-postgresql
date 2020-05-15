@@ -3,12 +3,6 @@ FROM jboss/wildfly:18.0.1.Final
 ENV WILDFLY_HOME /opt/jboss/wildfly
 ENV DEPLOY_DIR ${WILDFLY_HOME}/standalone/deployments/
 
-# setup timezone
-ENV TZ=Europe/Rome
-USER root
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-USER jboss
-
 ENV DATASOURCE_NAME RedEvoDataSource
 ENV DATASOURCE_JNDI java:/RedEvoDataSource
 
@@ -18,18 +12,13 @@ ENV DB_USER postgres
 ENV DB_PASS yazw4Wb4FE
 ENV DB_NAME postgres
 
-# create temporary deployment dir, because wars can deploy after the datasource is created
-RUN mkdir /tmp/deploments
-ENV DEPLOY_DIR /tmp/deploments
-
-RUN mkdir /tmp/jboss-cli
-ENV CLI_DIR /tmp/jboss-cli
+USER jboss
 
 COPY postgresql-42.2.12.jar /tmp
 
 RUN mkdir $WILDFLY_HOME/standalone/log && \
   touch $WILDFLY_HOME/standalone/log/server.log && \
-  chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
+chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
   /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
