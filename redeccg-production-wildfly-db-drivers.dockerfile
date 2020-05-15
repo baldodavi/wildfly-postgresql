@@ -54,7 +54,7 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   --background-validation-millis=6000 \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)" && \
+  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-periodic-rotating-file-handler(name=FILE)" && \
   echo ----- Shutdown && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
