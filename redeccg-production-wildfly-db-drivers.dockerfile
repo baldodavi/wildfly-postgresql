@@ -25,16 +25,10 @@ ENV DEPLOY_DIR /tmp/deploments
 RUN mkdir /tmp/jboss-cli
 ENV CLI_DIR /tmp/jboss-cli
 
-COPY startWithPostgres.sh $WILDFLY_HOME/bin
-
-USER root
-RUN chown jboss:jboss $WILDFLY_HOME/bin/startWithPostgres.sh
-RUN chmod 755 $WILDFLY_HOME/bin/startWithPostgres.sh
-USER jboss
-
 COPY postgresql-42.2.12.jar /tmp
 
-RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
+RUN chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
+  /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
   echo ----- Adding Module org.postgres && \
@@ -54,7 +48,8 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   --background-validation-millis=6000 \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
-  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-periodic-rotating-file-handler(name=FILE)" && \
+  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)" && \
+  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/periodic-rotating-file-handler=ROOT:remove" && \
   echo ----- Shutdown && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
@@ -66,4 +61,4 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
 #rm -rf $WILDFLY_HOME/standalone/configuration/standalone_xml_history/ $WILDFLY_HOME/standalone/log/* && \
 #rm -rf /tmp/postgresql-*.jar
 
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-c", "standalone.xml", "-bmanagement", "0.0.0.0"]
