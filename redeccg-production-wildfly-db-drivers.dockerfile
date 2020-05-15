@@ -11,10 +11,6 @@ ENV DB_USER postgres
 ENV DB_PASS yazw4Wb4FE
 ENV DB_NAME postgres
 
-user root
-RUN chown -R jboss:jboss JBOSS_HOME
-USER jboss
-
 COPY postgresql-42.2.12.jar /tmp
 
 RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
@@ -41,6 +37,10 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   #$JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/periodic-rotating-file-handler=ROOT:remove" && \
   echo ----- Shutdown && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown
+
+user root
+RUN chown -R jboss:jboss $JBOSS_HOME
+USER jboss
 
 # Add the datasource
 
