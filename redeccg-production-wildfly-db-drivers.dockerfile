@@ -1,7 +1,27 @@
-FROM jboss/wildfly:18.0.1.Final
+FROM jboss/base-jdk:11
 
-ENV WILDFLY_HOME /opt/jboss/wildfly
-ENV DEPLOY_DIR ${WILDFLY_HOME}/standalone/deployments/
+# Set the WILDFLY_VERSION env variable
+ENV WILDFLY_VERSION 18.0.1.Final
+ENV WILDFLY_SHA1 0d47c0e8054353f3e2749c11214eab5bc7d78a14
+ENV JBOSS_HOME /opt/jboss/wildfly
+
+USER root
+
+# Add the WildFly distribution to /opt, and make wildfly the owner of the extracted tar content
+# Make sure the distribution is available from a well-known place
+RUN cd $HOME \
+  && curl -O https://download.jboss.org/wildfly/$WILDFLY_VERSION/wildfly-$WILDFLY_VERSION.tar.gz \
+  && sha1sum wildfly-$WILDFLY_VERSION.tar.gz | grep $WILDFLY_SHA1 \
+  && tar xf wildfly-$WILDFLY_VERSION.tar.gz \
+  && mv $HOME/wildfly-$WILDFLY_VERSION $JBOSS_HOME \
+  && rm wildfly-$WILDFLY_VERSION.tar.gz \
+  && chown -R jboss:0 ${JBOSS_HOME} \
+  && chmod -R g+rw ${JBOSS_HOME}
+
+# Ensure signals are forwarded to the JVM process correctly for graceful shutdown
+ENV LAUNCH_JBOSS_IN_BACKGROUND true
+
+USER jboss
 
 ENV DATASOURCE_NAME RedEvoDataSource
 ENV DATASOURCE_JNDI java:/RedEvoDataSource
@@ -12,22 +32,16 @@ ENV DB_USER postgres
 ENV DB_PASS yazw4Wb4FE
 ENV DB_NAME postgres
 
-user root
-
 COPY postgresql-42.2.12.jar /tmp
 
-RUN mkdir $WILDFLY_HOME/standalone/log && \
-  touch $WILDFLY_HOME/standalone/log/server.log && \
-chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
-  chmod 777 /opt/jboss/wildfly/standalone/data/content && \
-  /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
+RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
   echo ----- Adding Module org.postgres && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" && \
   echo ----- Subsystem && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name=\"postgres\",driver-module-name=\"org.postgres\",driver-class-name=org.postgresql.Driver)" && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name=\"postgres\",driver-module-name=\"org.postgres\",driver-class-name=org.postgresql.Driver)" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect \
   --command="data-source add \
   --jndi-name=$DATASOURCE_JNDI \
   --name=$DATASOURCE_NAME \
@@ -40,17 +54,17 @@ chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
   --background-validation-millis=6000 \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
-  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)" && \
-  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/periodic-rotating-file-handler=ROOT:remove" && \
+  #$JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)" && \
+  #$JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/periodic-rotating-file-handler=ROOT:remove" && \
   echo ----- Shutdown && \
-  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
 # Add the datasource
 
-#$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="deploy /tmp/postgresql-42.2.12.jar" && \
-#$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="xa-data-source add --name=$DATASOURCE_NAME --jndi-name=java:/jdbc/datasources/campsturDS --user-name=${DB_USER} --password=${DB_PASS} --driver-name=postgresql-9.4-1201-jdbc41.jar --xa-datasource-class=org.postgresql.xa.PGXADataSource --xa-datasource-properties=ServerName=${DB_HOST},PortNumber=5432,DatabaseName=${DB_NAME} --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter" && \
-#$WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown && \
-#rm -rf $WILDFLY_HOME/standalone/configuration/standalone_xml_history/ $WILDFLY_HOME/standalone/log/* && \
+#$JBOSS_HOME/bin/jboss-cli.sh --connect --command="deploy /tmp/postgresql-42.2.12.jar" && \
+#$JBOSS_HOME/bin/jboss-cli.sh --connect --command="xa-data-source add --name=$DATASOURCE_NAME --jndi-name=java:/jdbc/datasources/campsturDS --user-name=${DB_USER} --password=${DB_PASS} --driver-name=postgresql-9.4-1201-jdbc41.jar --xa-datasource-class=org.postgresql.xa.PGXADataSource --xa-datasource-properties=ServerName=${DB_HOST},PortNumber=5432,DatabaseName=${DB_NAME} --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter" && \
+#$JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown && \
+#rm -rf $JBOSS_HOME/standalone/configuration/standalone_xml_history/ $JBOSS_HOME/standalone/log/* && \
 #rm -rf /tmp/postgresql-*.jar
 
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-c", "standalone.xml", "-bmanagement", "0.0.0.0"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-c", "standalone.xml"]
