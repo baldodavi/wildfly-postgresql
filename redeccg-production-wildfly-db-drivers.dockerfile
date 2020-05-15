@@ -1,15 +1,19 @@
 FROM jboss/wildfly:18.0.1.Final
 
-USER jboss
 
 ENV DATASOURCE_NAME RedEvoDataSource
 ENV DATASOURCE_JNDI java:/RedEvoDataSource
 
+ENV JBOSS_HOME=/opt/jboss/wildfly
 ENV DB_HOST rede-db-stolon-rede-proxy
 ENV DB_PORT 5432
 ENV DB_USER postgres
 ENV DB_PASS yazw4Wb4FE
 ENV DB_NAME postgres
+
+user root
+RUN chown -R jboss:jboss JBOSS_HOME
+USER jboss
 
 COPY postgresql-42.2.12.jar /tmp
 
