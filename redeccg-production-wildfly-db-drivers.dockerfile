@@ -27,7 +27,7 @@ ENV CLI_DIR /tmp/jboss-cli
 
 COPY postgresql-42.2.12.jar /tmp
 
-RUN chmod 777 $WILDFLY_HOME/standalone/log && \
+RUN chmod 777 $WILDFLY_HOME/standalone && \
   /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
