@@ -1,4 +1,5 @@
 TAG=0.9.14
-docker build -f redeccg-production-wildfly-db-drivers-debian.dockerfile -t redeccg-production-wildfly-db-drivers:$TAG .
-docker tag redeccg-production-wildfly-db-drivers:$TAG david-baldo.com/redeccg-production-wildfly-db-drivers:$TAG
-docker push david-baldo.com/redeccg-production-wildfly-db-drivers:$TAG
+NAME=redeccg-production-wildfly-db-drivers-debian
+docker build -f $NAME.dockerfile -t $NAME:$TAG .
+docker tag NAME:$TAG david-baldo.com/$NAME:$TAG
+docker push david-baldo.com/$NAME:$TAG
