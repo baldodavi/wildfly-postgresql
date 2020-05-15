@@ -30,7 +30,7 @@ ENV DB_NAME postgres
 
 COPY postgresql-42.2.12.jar /tmp
 
-ENV JAVA_HOME=/usr/
+ENV JAVA_HOME=/usr
 
 RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
@@ -54,5 +54,7 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
   echo ----- Shutdown && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown
+
+RUN chown -R root:root /opt/jboss
 
 CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]
