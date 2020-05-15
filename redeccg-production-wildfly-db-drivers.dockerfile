@@ -54,6 +54,7 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   --background-validation-millis=6000 \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
+  $WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-handler=FILE" && \
   echo ----- Shutdown && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
@@ -65,4 +66,4 @@ RUN /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
 #rm -rf $WILDFLY_HOME/standalone/configuration/standalone_xml_history/ $WILDFLY_HOME/standalone/log/* && \
 #rm -rf /tmp/postgresql-*.jar
 
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-c", "standalone.xml", "-bmanagement", "0.0.0.0"]
