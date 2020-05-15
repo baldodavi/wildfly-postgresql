@@ -12,7 +12,7 @@ ENV DB_USER postgres
 ENV DB_PASS yazw4Wb4FE
 ENV DB_NAME postgres
 
-USER jboss
+user root
 
 COPY postgresql-42.2.12.jar /tmp
 
