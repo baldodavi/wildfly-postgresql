@@ -27,7 +27,9 @@ ENV CLI_DIR /tmp/jboss-cli
 
 COPY postgresql-42.2.12.jar /tmp
 
-RUN chmod 777 $WILDFLY_HOME/standalone && \
+RUN mkdir $WILDFLY_HOME/standalone/log && \
+  touch $WILDFLY_HOME/standalone/log/server.log && \
+  chmod 777 $WILDFLY_HOME/standalone/log/server.log && \
   /bin/sh -c '$WILDFLY_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
@@ -48,6 +50,8 @@ RUN chmod 777 $WILDFLY_HOME/standalone && \
   --background-validation-millis=6000 \
   --flush-strategy=IdleConnections \
   --min-pool-size=10 --max-pool-size=100  --pool-prefill=false" && \
+  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)" && \
+  #$WILDFLY_HOME/bin/jboss-cli.sh --connect --command="/subsystem=logging/periodic-rotating-file-handler=ROOT:remove" && \
   echo ----- Shutdown && \
   $WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
