@@ -35,6 +35,8 @@ ENV JAVA_HOME=/usr
 RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   echo ----- Waiting for server && \
   sleep 10 && \
+  echo && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=deployment-scanner/scanner=default:write-attribute(name=auto-deploy-exploded,value=true)" && \
   echo ----- Adding Module org.postgres && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-42.2.12.jar --dependencies=javax.api,javax.transaction.api" && \
   echo ----- Subsystem && \
@@ -55,7 +57,7 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   echo ----- Shutdown && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown
 
-RUN chmod -R 777 /opt/jboss/wildfly/standalone
+RUN chmod -R 555 /opt/jboss/wildfly/standalone
 
 RUN $JBOSS_HOME/bin/add-user.sh admin -p admin -s
 
